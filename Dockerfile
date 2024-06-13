@@ -9,6 +9,7 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 # Copy mkdocs.yml into the Docker image
 COPY mkdocs.yml mkdocs.yml
+COPY overrides /overrides
 
 # Build doc by default
 ENTRYPOINT ["mkdocs"]
