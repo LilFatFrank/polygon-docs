@@ -9,7 +9,7 @@ RUN apk update && apk add --no-cache \
     npm
 
 # Copy the requirements file into the container
-COPY requirements.txt.
+COPY requirements.txt /requirements.txt
 
 # Install Python dependencies
 RUN pip install -r requirements.txt --no-cache-dir
