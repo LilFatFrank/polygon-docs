@@ -6,7 +6,8 @@ RUN apk update && apk add --no-cache \
     rsync \
     git \
     nodejs \
-    npm
+    npm \
+    nginx
 
 # Copy the requirements file into the container
 COPY requirements.txt /requirements.txt
@@ -19,9 +20,14 @@ COPY mkdocs.yml /mkdocs.yml
 COPY overrides /overrides
 COPY docs /docs
 
-# Expose port 8000 for the MkDocs server
-EXPOSE 8000
+# Build the MkDocs site
+RUN mkdocs build
 
-# Serve the MkDocs site
-ENTRYPOINT ["mkdocs"]
-CMD ["serve", "--dev-addr", "0.0.0.0:8000"]
+# Copy the static site to Nginx's HTML directory
+RUN cp -R site/* /usr/share/nginx/html/
+
+# Expose port 80 for the web server
+EXPOSE 80
+
+# Start Nginx when the container launches
+CMD ["nginx", "-g", "daemon off;"]
