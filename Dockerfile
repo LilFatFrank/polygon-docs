@@ -15,7 +15,7 @@ COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt --no-cache-dir
 
 # Copy MkDocs configuration and documentation sources into the container
-COPY mkdocs.yml.
+COPY mkdocs.yml /mkdocs.yml
 COPY overrides /overrides
 COPY docs /docs
 
