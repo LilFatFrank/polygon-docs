@@ -1,33 +1,29 @@
 # Use an Alpine-based Python image for a smaller footprint
-FROM python:3.9-alpine
+FROM python:3.9-alpine as builder
 
 # Update apk repositories and install necessary packages
-RUN apk update && apk add --no-cache \
-    rsync \
-    git \
-    nodejs \
-    npm \
-    nginx
+RUN apk update && \
+    apk add --no-cache rsync git nodejs npm nginx bash && \
+    rm -rf /var/cache/apk/*
 
 # Copy the requirements file into the container
 COPY requirements.txt /requirements.txt
 
 # Install Python dependencies
-RUN pip install -r requirements.txt --no-cache-dir
+RUN pip install -r /requirements.txt --no-cache-dir
 
-# Copy MkDocs configuration and documentation sources into the container
-COPY mkdocs.yml /mkdocs.yml
-COPY overrides /overrides
-COPY docs /docs
+# Copy your project code (including the MkDocs configuration)
+COPY . .
 
-# Build the MkDocs site
+# Build the MkDocs site - ensure this succeeds before copying
 RUN mkdocs build
 
-# Copy the static site to Nginx's HTML directory
-RUN cp -R site/* /usr/share/nginx/html/
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /site /usr/share/nginx/html
 
-# Expose port 80 for the web server
-EXPOSE 80
+# Expose port 3000 for the web server
+EXPOSE 3000
 
 # Start Nginx when the container launches
 CMD ["nginx", "-g", "daemon off;"]
